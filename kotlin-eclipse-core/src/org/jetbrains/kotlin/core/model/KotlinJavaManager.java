@@ -75,14 +75,15 @@ public class KotlinJavaManager {
         return null;
     }
     
-    public URI setKotlinFileSystemScheme(URI locationURI) {
+    public URI setKotlinFileSystemScheme(@NotNull IFolder folder) {
+        URI locationURI = folder.getLocationURI();
         try {
             return new URI(
                     KotlinFileSystem.SCHEME, 
                     locationURI.getUserInfo(), 
                     locationURI.getHost(), 
                     locationURI.getPort(), 
-                    locationURI.getPath(), 
+                    "/" + folder.getProjectRelativePath().toPortableString(), 
                     locationURI.getQuery(), 
                     locationURI.getFragment());
         } catch (URISyntaxException e) {
@@ -97,8 +98,7 @@ public class KotlinJavaManager {
             folder.create(true, true, null); // We need to create folder because it is on the classpath
         }
         
-        folder.createLink(setKotlinFileSystemScheme(folder.getLocationURI()), 
-                IResource.REPLACE | IResource.ALLOW_MISSING_LOCAL, null);
+        folder.createLink(setKotlinFileSystemScheme(folder), IResource.REPLACE | IResource.ALLOW_MISSING_LOCAL, null);
     }
     
     private boolean hasLinkedKotlinBinFolder(@NotNull IJavaProject javaProject) {

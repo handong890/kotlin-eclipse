@@ -9,10 +9,11 @@ import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jdt.core.IClasspathAttribute;
 import org.eclipse.jdt.core.IClasspathEntry;
 import org.eclipse.jdt.core.IJavaProject;
-import org.eclipse.jdt.core.IPackageFragmentRoot;
 import org.eclipse.jdt.core.IType;
+import org.eclipse.jdt.core.JavaCore;
 import org.eclipse.jdt.core.JavaModelException;
 import org.eclipse.jdt.internal.core.ClasspathEntry;
 import org.jetbrains.annotations.NotNull;
@@ -27,18 +28,6 @@ public class KotlinJavaManager {
     public static final KotlinJavaManager INSTANCE = new KotlinJavaManager();
     
     public static final Path KOTLIN_BIN_FOLDER = new Path("kotlin_bin");
-    private static final IClasspathEntry KOTLIN_BIN_CLASSPATH_ENTRY = new ClasspathEntry(IPackageFragmentRoot.K_BINARY,
-            IClasspathEntry.CPE_LIBRARY,
-            KOTLIN_BIN_FOLDER,
-            ClasspathEntry.INCLUDE_ALL,
-            ClasspathEntry.EXCLUDE_NONE,
-            null,
-            null,
-            null,
-            false,
-            ClasspathEntry.NO_ACCESS_RULES,
-            false,
-            ClasspathEntry.NO_EXTRA_ATTRIBUTES);
     
     private KotlinJavaManager() {
     }
@@ -50,7 +39,7 @@ public class KotlinJavaManager {
             }
             
             if (!ProjectUtils.isPathInClasspath(javaProject, KOTLIN_BIN_FOLDER)) {
-                ProjectUtils.addToClasspath(javaProject, KOTLIN_BIN_CLASSPATH_ENTRY);
+                ProjectUtils.addToClasspath(javaProject, createKotlinBinClasspathEntry(javaProject));
             }
         } catch (CoreException e) {
             KotlinLogger.logAndThrow(e);
@@ -96,9 +85,6 @@ public class KotlinJavaManager {
     
     private void addFolderForKotlinClassFiles(@NotNull IJavaProject javaProject) throws CoreException { 
         IFolder folder = javaProject.getProject().getFolder(KOTLIN_BIN_FOLDER);
-        if (folder.exists()) {
-            folder.create(IResource.FORCE, true, null); // We need to create folder because it is in the classpath
-        }
         folder.createLink(setKotlinFileSystemScheme(folder), IResource.REPLACE | IResource.ALLOW_MISSING_LOCAL, null);
     }
     
@@ -109,6 +95,17 @@ public class KotlinJavaManager {
         }
         
         return false;
+    }
+    
+    private static IClasspathEntry createKotlinBinClasspathEntry(@NotNull IJavaProject javaProject) {
+        IPath path = new Path(javaProject.getProject().getName()).append(KOTLIN_BIN_FOLDER).makeAbsolute();
+        return JavaCore.newLibraryEntry(
+                path, 
+                null, 
+                null, 
+                ClasspathEntry.NO_ACCESS_RULES, 
+                new IClasspathAttribute[] { JavaCore.newClasspathAttribute(IClasspathAttribute.OPTIONAL, "true") }, 
+                false);
     }
     
 }

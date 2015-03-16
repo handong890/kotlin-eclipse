@@ -237,9 +237,8 @@ public class ProjectUtils {
         return files;
     }
     
-    @SuppressWarnings("unchecked")
     @NotNull
-    private static List<File> expandClasspath(@NotNull IJavaProject javaProject, 
+    public static List<File> expandClasspath(@NotNull IJavaProject javaProject, 
             @NotNull Predicate<IClasspathEntry> entryPredicate) throws JavaModelException {
         Set<File> files = Sets.newLinkedHashSet();
         
@@ -250,12 +249,7 @@ public class ProjectUtils {
             
             switch (classpathEntry.getEntryKind()) {
                 case IClasspathEntry.CPE_PROJECT:
-                    IPath projectPath = classpathEntry.getPath();
-                    IProject dependentProject = ResourcesPlugin.getWorkspace().getRoot().getProject(projectPath.toString());
-                    if (dependentProject.exists()) {
-                        files.addAll(expandDependentProjectClasspath(JavaCore.create(dependentProject), entryPredicate));
-                    }
-                    
+                    files.addAll(expandDependentProjectClasspath(classpathEntry, entryPredicate));
                     break;
                 default: // source code or library
                     files.addAll(getFileByEntry(classpathEntry, javaProject));
@@ -266,8 +260,12 @@ public class ProjectUtils {
     }
     
     @NotNull
-    private static List<File> expandDependentProjectClasspath(@NotNull IJavaProject javaProject,
+    private static List<File> expandDependentProjectClasspath(@NotNull IClasspathEntry projectEntry,
             @NotNull Predicate<IClasspathEntry> entryPredicate) throws JavaModelException {
+        IPath projectPath = projectEntry.getPath();
+        IProject dependentProject = ResourcesPlugin.getWorkspace().getRoot().getProject(projectPath.toString());
+        IJavaProject javaProject = JavaCore.create(dependentProject);
+        
         Set<File> files = Sets.newLinkedHashSet();
         
         @SuppressWarnings("unchecked")
@@ -278,6 +276,11 @@ public class ProjectUtils {
             }
             
             if (applicableEntry.apply(classpathEntry)) {
+                if (classpathEntry.getEntryKind() == IClasspathEntry.CPE_PROJECT) {
+                    files.addAll(expandDependentProjectClasspath(classpathEntry, entryPredicate));
+                    continue;
+                }
+                
                 files.addAll(getFileByEntry(classpathEntry, javaProject));
             }
         }

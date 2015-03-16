@@ -51,6 +51,7 @@ import org.jetbrains.kotlin.psi.JetFile;
 import org.osgi.framework.Bundle;
 
 import com.google.common.base.Predicate;
+import com.google.common.base.Predicates;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Sets;
 
@@ -207,6 +208,101 @@ public class ProjectUtils {
         }
         
         return projects;
+    }
+    
+    private static List<File> getFilesByEntries(@NotNull List<IClasspathEntry> entries, @NotNull Predicate<IClasspathEntry> entryPredicate) {
+        Set<File> files = Sets.newLinkedHashSet();
+        
+        for (IClasspathEntry entry : entries) {
+            
+        }
+        
+        return Lists.newArrayList(files);
+    }
+    
+    @NotNull
+    private static List<File> getFileByEntry(@NotNull IClasspathEntry entry, @NotNull IJavaProject javaProject) {
+        List<File> files = Lists.newArrayList();
+        
+        IPackageFragmentRoot[] packageFragmentRoots = javaProject.findPackageFragmentRoots(entry);
+        for (IPackageFragmentRoot pckgFragmentRoot : packageFragmentRoots) {
+            IResource resource = pckgFragmentRoot.getResource();
+            if (resource != null) {
+                files.add(resource.getLocation().toFile());
+            } else { // This can be if resource is external
+                files.add(pckgFragmentRoot.getPath().toFile());
+            }
+        }
+        
+        return files;
+    }
+    
+    @SuppressWarnings("unchecked")
+    @NotNull
+    private static List<File> expandClasspath(@NotNull IJavaProject javaProject, 
+            @NotNull Predicate<IClasspathEntry> entryPredicate) throws JavaModelException {
+        Set<File> files = Sets.newLinkedHashSet();
+        
+        for (IClasspathEntry classpathEntry : javaProject.getResolvedClasspath(true)) {
+            if (!entryPredicate.apply(classpathEntry)) {
+                continue; 
+            }
+            
+            switch (classpathEntry.getEntryKind()) {
+                case IClasspathEntry.CPE_PROJECT:
+                    IPath projectPath = classpathEntry.getPath();
+                    IProject dependentProject = ResourcesPlugin.getWorkspace().getRoot().getProject(projectPath.toString());
+                    if (dependentProject.exists()) {
+                        files.addAll(expandDependentProjectClasspath(JavaCore.create(dependentProject), entryPredicate));
+                    }
+                    
+                    break;
+                default: // source code or library
+                    files.addAll(getFileByEntry(classpathEntry, javaProject));
+            }
+        }
+        
+        return Lists.newArrayList(files);
+    }
+    
+    @NotNull
+    private static List<File> expandDependentProjectClasspath(@NotNull IJavaProject javaProject,
+            @NotNull Predicate<IClasspathEntry> entryPredicate) throws JavaModelException {
+        Set<File> files = Sets.newLinkedHashSet();
+        
+        @SuppressWarnings("unchecked")
+        Predicate<IClasspathEntry> applicableEntry = Predicates.or(isExportedEntryPredicate(), sourceCodeEntryPredicate());
+        for (IClasspathEntry classpathEntry : javaProject.getResolvedClasspath(true)) {
+            if (!entryPredicate.apply(classpathEntry)) {
+                continue;
+            }
+            
+            if (applicableEntry.apply(classpathEntry)) {
+                files.addAll(getFileByEntry(classpathEntry, javaProject));
+            }
+        }
+        
+        return Lists.newArrayList(files);
+    }
+    
+    @NotNull
+    private static Predicate<IClasspathEntry> isExportedEntryPredicate() {
+        return new Predicate<IClasspathEntry>() {
+            @Override
+            public boolean apply(IClasspathEntry entry) {
+                return entry.isExported();
+            }
+        };
+    }
+    
+    @NotNull
+    private static Predicate<IClasspathEntry> sourceCodeEntryPredicate() {
+        return new Predicate<IClasspathEntry>() {
+            @Override
+            public boolean apply(IClasspathEntry entry) {
+                return entry.getEntryKind() == IClasspathEntry.CPE_SOURCE;
+            }
+        };
     }
     
     private static Set<File> getClasspaths(@NotNull IJavaProject javaProject, @NotNull Predicate<IClasspathEntry> cpEntryPredicate) throws JavaModelException {

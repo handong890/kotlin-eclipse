@@ -16,7 +16,6 @@
  *******************************************************************************/
 package org.jetbrains.kotlin.ui.editors;
 
-import org.eclipse.core.resources.IFile;
 import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
@@ -62,47 +61,39 @@ public class KotlinAutoIndentStrategy implements IAutoEditStrategy {
     }
     
     private int computeIndentCount(IDocument document, int offset) {
-        try {
-            if (offset == document.getLength()) {
-                return 0;
-            }
-            
-            IFile file = EditorUtil.getFile(editor);
-            if (document.get().contains(LineEndUtil.CARRIAGE_RETURN_STRING)) {
-                offset -= document.getLineOfOffset(offset);
-            }
-            
-            PsiFile parsedDocument = KotlinPsiManager.getKotlinFileIfExist(file, document.get());
-            if (parsedDocument == null) {
-                return 0;
-            }
-            
-            PsiElement leaf = parsedDocument.findElementAt(offset);
-            if (leaf == null) {
-                return 0;
-            }
-            
-            if (leaf.getNode().getElementType() != JetTokens.WHITE_SPACE) {
-                leaf = parsedDocument.findElementAt(offset - 1);
-            }
-            
-            int indent = 0;
-            
-            ASTNode node = null;
-            if (leaf != null) {
-                node = leaf.getNode();
-            }
-            while(node != null) {
-                indent = AlignmentStrategy.updateIndent(node, indent);
-                node = node.getTreeParent();
-            }
-            
-            return indent;
-        } catch (BadLocationException e) {
-            KotlinLogger.logAndThrow(e);
+        if (offset == document.getLength()) {
+            return 0;
         }
         
-        return 0; 
+        PsiFile parsedDocument = KotlinPsiManager.getKotlinFileIfExist(EditorUtil.getFile(editor), document.get());
+        if (parsedDocument == null) {
+            return 0;
+        }
+        
+        offset = LineEndUtil.convertLfToDocumentOffset(document.get(), offset, document);
+        PsiElement leaf = parsedDocument.findElementAt(offset);
+        if (leaf == null) {
+            return 0;
+        }
+        
+        if (leaf.getNode().getElementType() != JetTokens.WHITE_SPACE) {
+            leaf = parsedDocument.findElementAt(offset - 1);
+        }
+        
+        int indent = 0;
+        
+        ASTNode node = null;
+        if (leaf != null) {
+            node = leaf.getNode();
+        }
+        while(node != null) {
+            if (AlignmentStrategy.CODE_BLOCKS.contains(node.getElementType())) {
+                indent++;
+            }
+            node = node.getTreeParent();
+        }
+        
+        return indent;
     }
     
     private void autoEditAfterNewLine(IDocument document, DocumentCommand command) {

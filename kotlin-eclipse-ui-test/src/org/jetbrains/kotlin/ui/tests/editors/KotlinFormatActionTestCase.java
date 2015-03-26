@@ -19,9 +19,15 @@ package org.jetbrains.kotlin.ui.tests.editors;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.jetbrains.kotlin.testframework.editor.KotlinEditorWithAfterFileTestCase;
+import org.jetbrains.kotlin.testframework.editor.TextEditorTest;
 import org.jetbrains.kotlin.testframework.utils.EditorTestUtils;
+import org.junit.Before;
 
 public class KotlinFormatActionTestCase extends KotlinEditorWithAfterFileTestCase {
+	@Before
+	public void configure() {
+		configureProject();
+	}
     
     private static final String FORMAT_ACTION_TEST_DATA_SEGMENT = "format";
     
@@ -30,9 +36,10 @@ public class KotlinFormatActionTestCase extends KotlinEditorWithAfterFileTestCas
         EditorsUI.getPreferenceStore().setValue(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SPACES_FOR_TABS, true);
         EditorsUI.getPreferenceStore().setValue(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_TAB_WIDTH, 4);
         
+        TextEditorTest testEditor = configureEditor("Some.kt", content);
         testEditor.runFormatAction();
         
-        EditorTestUtils.assertByEditor(getEditor(), content);
+        EditorTestUtils.assertByEditor(testEditor.getEditor(), content);
     }
     
     @Override

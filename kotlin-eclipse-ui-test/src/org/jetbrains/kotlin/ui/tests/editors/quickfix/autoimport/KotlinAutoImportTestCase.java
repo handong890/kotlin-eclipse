@@ -20,6 +20,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.eclipse.jdt.internal.ui.javaeditor.JavaEditor;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.source.TextInvocationContext;
 import org.jetbrains.kotlin.testframework.editor.KotlinEditorWithAfterFileTestCase;
@@ -29,8 +30,13 @@ import org.jetbrains.kotlin.testframework.utils.KotlinTestUtils;
 import org.jetbrains.kotlin.ui.editors.KotlinCorrectionProcessor;
 import org.jetbrains.kotlin.ui.editors.quickassist.KotlinAutoImportAssistProposal;
 import org.junit.Assert;
+import org.junit.Before;
 
 public abstract class KotlinAutoImportTestCase extends KotlinEditorWithAfterFileTestCase {
+	@Before
+	public void configure() {
+		configureProject();
+	}
     
     private static final String AUTOIMPORT_TEST_DATA_PATH_SEGMENT = "completion/autoimport";
     
@@ -90,5 +96,13 @@ public abstract class KotlinAutoImportTestCase extends KotlinEditorWithAfterFile
         }
         
         return result;
+    }
+    
+    private int getCaret() {
+        return getEditor().getViewer().getTextWidget().getCaretOffset();
+    }
+    
+    private JavaEditor getEditor() {
+    	return testEditor.getEditor();
     }
 }

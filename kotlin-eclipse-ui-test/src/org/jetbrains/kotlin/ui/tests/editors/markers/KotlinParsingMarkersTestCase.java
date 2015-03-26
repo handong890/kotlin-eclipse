@@ -28,9 +28,14 @@ import org.jetbrains.kotlin.ui.editors.AnnotationManager;
 import org.jetbrains.kotlin.ui.editors.DiagnosticAnnotation;
 import org.jetbrains.kotlin.ui.editors.DiagnosticAnnotationUtil;
 import org.junit.Assert;
+import org.junit.Before;
 
 public abstract class KotlinParsingMarkersTestCase extends KotlinEditorWithAfterFileTestCase {
-    
+	@Before
+	public void configure() {
+		configureProject();
+	}
+	
     @Override
     protected void performTest(String fileText, String expected) {
         IFile file = testEditor.getEditingFile();
@@ -46,7 +51,7 @@ public abstract class KotlinParsingMarkersTestCase extends KotlinEditorWithAfter
         
         try {
             IMarker[] markers = testEditor.getEditingFile().findMarkers(IMarker.PROBLEM, true, IResource.DEPTH_INFINITE);
-            String actual = insertTagsForErrors(EditorUtil.getSourceCode(getEditor()), markers);
+            String actual = insertTagsForErrors(EditorUtil.getSourceCode(testEditor.getEditor()), markers);
             
             Assert.assertEquals(expected, actual);
         } catch (CoreException e) {

@@ -173,8 +173,12 @@ public class TestJavaProject {
         return javaProject;
     }
     
-    public void addKotlinRuntime() throws CoreException {
-        ProjectUtils.addKotlinRuntime(javaProject);
+    public void addKotlinRuntime() {
+        try {
+			ProjectUtils.addKotlinRuntime(javaProject);
+		} catch (CoreException e) {
+			throw new RuntimeException(e);
+		}
     }
     
     private void addSystemLibraries() throws JavaModelException {

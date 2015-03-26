@@ -21,10 +21,14 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.jetbrains.kotlin.testframework.utils.KotlinTestUtils;
+
 import com.intellij.openapi.util.Condition;
 import com.intellij.util.containers.ContainerUtil;
 
 public abstract class KotlinEditorWithAfterFileTestCase extends KotlinEditorAutoTestCase {
+	
+	protected TextEditorTest testEditor;
     
     private static class WithAfterSourceFileData extends EditorSourceFileData {
         
@@ -86,7 +90,7 @@ public abstract class KotlinEditorWithAfterFileTestCase extends KotlinEditorAuto
     @Override
     protected void doSingleFileAutoTest(String testPath) {
         String fileText = getText(testPath);
-        testEditor = configureEditor(getNameByPath(testPath), fileText,
+        testEditor = configureEditor(KotlinTestUtils.getNameByPath(testPath), fileText,
                 WithAfterSourceFileData.getPackageFromContent(fileText));
         
         performTest(fileText, getText(testPath + AFTER_FILE_EXTENSION));

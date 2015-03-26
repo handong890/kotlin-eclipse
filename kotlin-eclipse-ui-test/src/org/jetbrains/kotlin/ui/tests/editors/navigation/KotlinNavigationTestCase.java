@@ -27,12 +27,18 @@ import org.eclipse.ui.PlatformUI;
 import org.jetbrains.kotlin.testframework.editor.KotlinEditorAutoTestCase;
 import org.jetbrains.kotlin.testframework.editor.TextEditorTest;
 import org.jetbrains.kotlin.testframework.utils.EditorTestUtils;
+import org.jetbrains.kotlin.testframework.utils.KotlinTestUtils;
 import org.jetbrains.kotlin.testframework.utils.SourceFileData;
+import org.junit.Before;
 
 import com.intellij.openapi.util.Condition;
 import com.intellij.util.containers.ContainerUtil;
 
 public abstract class KotlinNavigationTestCase extends KotlinEditorAutoTestCase {
+	@Before
+	public void configure() {
+		configureProject();
+	}
     
     private static class NavigationSourceFileData extends SourceFileData {
         
@@ -93,7 +99,7 @@ public abstract class KotlinNavigationTestCase extends KotlinEditorAutoTestCase 
     
     private static final String NAVIGATION_TEST_DATA_PATH_SEGMENT = "navigation";
     
-    private void performTest(String contentAfter) {
+    private void performTest(String contentAfter, TextEditorTest testEditor) {
         testEditor.runOpenDeclarationAction();
         
         JavaEditor activeEditor = (JavaEditor) PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getActiveEditor();
@@ -103,13 +109,12 @@ public abstract class KotlinNavigationTestCase extends KotlinEditorAutoTestCase 
     @Override
     protected void doSingleFileAutoTest(String testPath) {
         String fileText = getText(testPath);
-        testEditor = configureEditor(
-                getNameByPath(testPath),
+        TextEditorTest testEditor = configureEditor(
+                KotlinTestUtils.getNameByPath(testPath),
                 fileText,
-                TextEditorTest.TEST_PROJECT_NAME,
                 NavigationSourceFileData.getPackageFromContent(fileText));
         
-        performTest(getText(testPath + AFTER_FILE_EXTENSION));
+        performTest(getText(testPath + AFTER_FILE_EXTENSION), testEditor);
     }
     
     @Override
@@ -119,10 +124,9 @@ public abstract class KotlinNavigationTestCase extends KotlinEditorAutoTestCase 
         NavigationSourceFileData target = NavigationSourceFileData.getFileByPredicate(
                 files,
                 NavigationSourceFileData.IS_BEFORE_PREDICATE);
-        testEditor = configureEditor(
+        TextEditorTest testEditor = configureEditor(
                 target.getFileName().replace(BEFORE_FILE_EXTENSION, ""),
                 target.getContent(),
-                TextEditorTest.TEST_PROJECT_NAME,
                 target.getPackageName());
         
         NavigationSourceFileData targetAfter = NavigationSourceFileData.getFileByPredicate(
@@ -139,7 +143,7 @@ public abstract class KotlinNavigationTestCase extends KotlinEditorAutoTestCase 
             }
         }
         
-        performTest(targetAfter.getContent());
+        performTest(targetAfter.getContent(), testEditor);
     }
     
     @Override

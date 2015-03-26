@@ -35,7 +35,7 @@ public class TextEditorTest {
     public static final String TEST_PROJECT_NAME = "test_project";
     public static final String TEST_PACKAGE_NAME = "testing";
     private TestJavaProject testProject;
-    private JavaEditor editor = null;
+    private KotlinEditor editor = null;
     
     public TextEditorTest() {
         this(TEST_PROJECT_NAME);
@@ -57,18 +57,18 @@ public class TextEditorTest {
         return testProject.getJavaProject().getProject();
     }
     
-    public JavaEditor createEditor(String name, String content) {
+    public KotlinEditor createEditor(String name, String content) {
         return createEditor(name, content, TEST_PACKAGE_NAME);
     }
     
-    public JavaEditor createEditor(String name, String content, String packageName) {
+    public KotlinEditor createEditor(String name, String content, String packageName) {
         if (editor == null) {
             try {
                 int cursor = content.indexOf(KotlinEditorTestCase.CARET_TAG);
                 content = content.replaceAll(KotlinEditorTestCase.CARET_TAG, "");
                 
                 IFile file = testProject.createSourceFile(packageName, name, content);
-                editor = (JavaEditor) EditorTestUtils.openInEditor(file);
+                editor = (KotlinEditor) EditorTestUtils.openInEditor(file);
                 setCaret(cursor);
             } catch (Exception e) {
                 throw new RuntimeException(e);

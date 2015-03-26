@@ -52,8 +52,6 @@ public abstract class KotlinEditorTestCase {
     public static final String WARNING_TAG_CLOSE = "</warning>";
     public static final String BREAK_TAG = "<br>";
     
-    @Rule
-    public TestName name = new TestName();
     protected TextEditorTest testEditor;
     private Separator initialSeparator;
     private int initialSpacesCount;

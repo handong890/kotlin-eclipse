@@ -34,14 +34,15 @@ public class AlignmentStrategy {
     private final int lineIndentation;
     
     public static final TokenSet CODE_BLOCKS = TokenSet.create(
-            JetNodeTypes.BLOCK, 
-            JetNodeTypes.CLASS_BODY, 
-            JetNodeTypes.FUNCTION_LITERAL,
-            JetNodeTypes.WHEN,
             JetNodeTypes.IF,
             JetNodeTypes.FOR,
             JetNodeTypes.WHILE,
-            JetNodeTypes.DO_WHILE);
+            JetNodeTypes.FUN,
+            JetNodeTypes.CLASS,
+            JetNodeTypes.OBJECT_DECLARATION,
+            JetNodeTypes.FUNCTION_LITERAL_EXPRESSION,
+            JetNodeTypes.PROPERTY,
+            JetNodeTypes.WHEN);
     
     public AlignmentStrategy(ASTNode parsedFile, int lineIndentation) {
         this.parsedFile = parsedFile;

@@ -70,7 +70,7 @@ public class KotlinAutoIndentStrategy implements IAutoEditStrategy {
             return 0;
         }
         
-        offset = LineEndUtil.convertLfToDocumentOffset(document.get(), offset, document);
+        offset = LineEndUtil.convertCrToDocumentOffset(document.get(), offset, document);
         PsiElement leaf = parsedDocument.findElementAt(offset);
         if (leaf == null) {
             return 0;

@@ -1,3 +1,4 @@
-fun some() =
+fun some() {
 	if (true)
 		if (true)<caret>
+}

@@ -14,6 +14,7 @@ import org.jetbrains.kotlin.eclipse.ui.utils.IndenterUtil;
 import org.jetbrains.kotlin.eclipse.ui.utils.LineEndUtil;
 import org.jetbrains.kotlin.psi.JetFile;
 
+import com.intellij.openapi.util.text.StringUtilRt;
 import com.intellij.psi.PsiElement;
 
 public class KotlinTokenScanner implements ITokenScanner {
@@ -34,7 +35,7 @@ public class KotlinTokenScanner implements ITokenScanner {
     @Override
     public void setRange(IDocument document, int offset, int length) {
         this.document = document;
-        jetFile = KotlinPsiManager.getKotlinFileIfExist(file, document.get());
+        jetFile = KotlinPsiManager.INSTANCE.parseText(StringUtilRt.convertLineSeparators(document.get()), file);
         this.offset = LineEndUtil.convertCrToDocumentOffset(document, offset);
         this.rangeEnd = this.offset + length;
         this.lastElement = null;

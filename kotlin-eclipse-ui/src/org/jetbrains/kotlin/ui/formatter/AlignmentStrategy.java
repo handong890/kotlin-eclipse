@@ -37,11 +37,10 @@ public class AlignmentStrategy {
             JetNodeTypes.IF,
             JetNodeTypes.FOR,
             JetNodeTypes.WHILE,
-            JetNodeTypes.FUN,
-            JetNodeTypes.CLASS,
+            JetNodeTypes.BLOCK,
+            JetNodeTypes.CLASS_BODY,
             JetNodeTypes.OBJECT_DECLARATION,
-            JetNodeTypes.FUNCTION_LITERAL_EXPRESSION,
-            JetNodeTypes.PROPERTY,
+            JetNodeTypes.PROPERTY_ACCESSOR,
             JetNodeTypes.WHEN);
     
     public AlignmentStrategy(ASTNode parsedFile, int lineIndentation) {

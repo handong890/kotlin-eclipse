@@ -198,7 +198,9 @@ public class KotlinPsiManager {
         synchronized (mapOperationLock) {
             try {
                 File ioFile = new File(file.getRawLocation().toOSString());
-                return parseText(FileUtil.loadFile(ioFile, null, true), file);
+                if (ioFile.exists()) {
+                    return parseText(FileUtil.loadFile(ioFile, null, true), file);
+                }
             } catch (IOException e) {
                 KotlinLogger.logAndThrow(e);
             }

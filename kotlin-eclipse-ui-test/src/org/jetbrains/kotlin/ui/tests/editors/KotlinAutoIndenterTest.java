@@ -25,6 +25,39 @@ public class KotlinAutoIndenterTest extends KotlinAutoIndenterTestCase {
 	}
 	
 	@Test
+	public void afterCommentBeforeProperty() {
+		doAutoTest();
+	}
+	
+	public void afterElse() {
+		doAutoTest();
+	}
+	
+	public void afterElseStatement() {
+		doAutoTest();
+	}
+	
+	@Test
+	public void afterThen() {
+		doAutoTest();
+	}
+	
+	@Test
+	public void afterGetter() {
+		doAutoTest();
+	}
+	
+	@Test
+	public void afterSetter() {
+		doAutoTest();
+	}
+	
+	@Test
+	public void inSetter() {
+		doAutoTest();
+	}
+	
+	@Test
 	public void afterKDoc() {
 		doAutoTest();
 	}

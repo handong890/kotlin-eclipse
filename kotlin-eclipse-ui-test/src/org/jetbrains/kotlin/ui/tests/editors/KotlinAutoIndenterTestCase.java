@@ -20,21 +20,17 @@ import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.ui.editors.text.EditorsUI;
 import org.eclipse.ui.texteditor.AbstractDecoratedTextEditorPreferenceConstants;
 import org.jetbrains.kotlin.testframework.editor.KotlinEditorTestCase;
-import org.jetbrains.kotlin.testframework.editor.KotlinProjectTestCase;
-import org.jetbrains.kotlin.testframework.editor.TextEditorTest;
-import org.jetbrains.kotlin.testframework.editor.KotlinEditorTestCase.Separator;
+import org.jetbrains.kotlin.testframework.editor.KotlinEditorWithAfterFileTestCase;
 import org.jetbrains.kotlin.testframework.utils.EditorTestUtils;
-import org.jetbrains.kotlin.testframework.utils.KotlinTestUtils;
 import org.junit.After;
 import org.junit.Before;
 
-public abstract class KotlinAutoIndenterTestCase extends KotlinProjectTestCase {
+public abstract class KotlinAutoIndenterTestCase extends KotlinEditorWithAfterFileTestCase {
     private int initialSpacesCount;
     private Separator initialSeparator;
     
     @Before
     public void configure() {
-        configureProject();
         initialSeparator = EditorsUI.getPreferenceStore().getBoolean(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_SPACES_FOR_TABS) ? Separator.SPACE : Separator.TAB;
         initialSpacesCount = EditorsUI.getPreferenceStore().getInt(AbstractDecoratedTextEditorPreferenceConstants.EDITOR_TAB_WIDTH);
     }
@@ -46,16 +42,12 @@ public abstract class KotlinAutoIndenterTestCase extends KotlinProjectTestCase {
         setStorePreference(Separator.SPACE == initialSeparator, initialSpacesCount);
     }
     
-    protected void doTest(String input, String expected) {
-        String resolvedInput = KotlinTestUtils.resolveTestTags(input);
-        TextEditorTest testEditor = configureEditor("Test.kt", resolvedInput);
-        setStorePreference(false, 2);
-        
-        if (input.contains(KotlinEditorTestCase.CARET_TAG)) {
-            testEditor.typeEnter();
-        }
-        
-        EditorTestUtils.assertByEditor(testEditor.getEditor(), expected);
+    @Override
+	protected void performTest(String fileText, String expectedFileText) {
+    	assert fileText.contains(KotlinEditorTestCase.CARET_TAG);
+    	
+    	testEditor.typeEnter();
+    	EditorTestUtils.assertByEditor(testEditor.getEditor(), expectedFileText);
     }
     
     protected IPreferenceStore getStore() {

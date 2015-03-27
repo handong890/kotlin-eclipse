@@ -1,0 +1,6 @@
+class Some {
+	/**
+	*
+	*/
+	<caret>
+}

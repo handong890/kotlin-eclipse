@@ -43,6 +43,10 @@ public class KotlinTokenScanner implements ITokenScanner {
 
     @Override
     public IToken nextToken() {
+        if (jetFile == null) {
+            return Token.EOF;
+        }
+        
         if (lastElement != null) {
             if (lastElement.getTextOffset() > rangeEnd) {
                 return Token.EOF;

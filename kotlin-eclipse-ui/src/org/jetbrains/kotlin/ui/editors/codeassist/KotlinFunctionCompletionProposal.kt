@@ -25,7 +25,7 @@ public enum class CaretPosition {
 }
 
 public class KotlinFunctionCompletionProposal(
-		proposal: ICompletionProposal,
+		proposal: KotlinCompletionProposal,
 		val caretPosition : CaretPosition,
 		val hasLambda: Boolean): KotlinHandlerCompletionProposal(proposal) {
 	

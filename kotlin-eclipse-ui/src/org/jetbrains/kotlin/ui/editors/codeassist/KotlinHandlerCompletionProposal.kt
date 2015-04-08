@@ -8,7 +8,7 @@ import org.eclipse.jface.text.DocumentEvent
 import org.eclipse.jface.text.ITextViewer
 
 public abstract class KotlinHandlerCompletionProposal(
-		proposal: ICompletionProposal): KotlinCompletionProposal(proposal), ICompletionProposalExtension, ICompletionProposalExtension2 {
+		val proposal: KotlinCompletionProposal): ICompletionProposal by proposal, ICompletionProposalExtension, ICompletionProposalExtension2 {
 	
 	override fun selected(viewer: ITextViewer, smartToggle: Boolean) {
 	}
@@ -16,7 +16,9 @@ public abstract class KotlinHandlerCompletionProposal(
 	override fun unselected(viewer: ITextViewer) {
 	}
 	
-	override fun validate(document: IDocument, offset: Int, event: DocumentEvent): Boolean = true
+	override fun validate(document: IDocument, offset: Int, event: DocumentEvent): Boolean {
+		return proposal.replacementString.startsWith(document.get(proposal.replacementOffset, offset))
+	}
 	
 	override fun isValidFor(document: IDocument, offset: Int): Boolean {
 		throw IllegalStateException("This method should never be called")

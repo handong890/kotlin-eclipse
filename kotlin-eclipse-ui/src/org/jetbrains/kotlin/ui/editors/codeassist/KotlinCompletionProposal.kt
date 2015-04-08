@@ -11,10 +11,11 @@ import org.jetbrains.kotlin.ui.editors.KotlinEditor
 import org.jetbrains.kotlin.psi.JetFile
 import org.jetbrains.kotlin.builtins.KotlinBuiltIns
 import kotlin.platform.platformStatic
+import org.eclipse.jface.text.contentassist.CompletionProposal
 
 public fun withKotlinInsertHandler(
 		descriptor: DeclarationDescriptor,
-		proposal: ICompletionProposal): KotlinCompletionProposal {
+		proposal: KotlinCompletionProposal): ICompletionProposal {
 	return when (descriptor) {
 		is FunctionDescriptor -> {
 			val parameters = descriptor.getValueParameters()
@@ -37,8 +38,33 @@ public fun withKotlinInsertHandler(
 			}
 		}
 		
-		else -> KotlinCompletionProposal(proposal)
+		else -> proposal
 	}
 }
 
-public open class KotlinCompletionProposal(val proposal: ICompletionProposal) : ICompletionProposal by proposal
+public open class KotlinCompletionProposal(
+		val replacementString: String,
+		val replacementOffset: Int,
+		val replacementLength: Int,
+		val cursorPosition: Int,
+		val img: Image?,
+		val presentableString: String,
+		val information: IContextInformation?,
+		val additionalInfo: String) : ICompletionProposal {
+	val defaultCompletionProposal = 
+			CompletionProposal(replacementString, replacementOffset, replacementLength, cursorPosition, img, presentableString, information, additionalInfo)
+	
+	override fun apply(document: IDocument) {
+		defaultCompletionProposal.apply(document)
+	}
+	
+	override fun getSelection(document: IDocument): Point? = defaultCompletionProposal.getSelection(document)
+	
+	override fun getAdditionalProposalInfo(): String = defaultCompletionProposal.getAdditionalProposalInfo()
+	
+	override fun getDisplayString(): String = defaultCompletionProposal.getDisplayString()
+	
+	override fun getImage(): Image? = defaultCompletionProposal.getImage()
+	
+	override fun getContextInformation(): IContextInformation? = defaultCompletionProposal.getContextInformation()
+}

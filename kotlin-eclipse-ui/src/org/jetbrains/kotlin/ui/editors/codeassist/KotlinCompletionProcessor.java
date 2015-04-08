@@ -171,9 +171,10 @@ public class KotlinCompletionProcessor implements IContentAssistProcessor, IComp
             String completion = descriptor.getName().getIdentifier();
             Image image = KotlinDescriptorUtils.INSTANCE.getImage(descriptor);
             String presentableString = DescriptorRenderer.STARTS_FROM_NAME.render(descriptor);
+            assert image != null : "Image for completion must not be null";
             
-            CompletionProposal proposal = new CompletionProposal(
-                    completion, 
+            KotlinCompletionProposal proposal = new KotlinCompletionProposal(
+                    completion,
                     replacementOffset, 
                     replacementLength, 
                     completion.length(), 
@@ -182,7 +183,7 @@ public class KotlinCompletionProcessor implements IContentAssistProcessor, IComp
                     null, 
                     completion);
             
-            KotlinCompletionProposal handler = CodeassistPackage.withKotlinInsertHandler(descriptor, proposal);
+            ICompletionProposal handler = CodeassistPackage.withKotlinInsertHandler(descriptor, proposal);
             proposals.add(handler);
         }
         

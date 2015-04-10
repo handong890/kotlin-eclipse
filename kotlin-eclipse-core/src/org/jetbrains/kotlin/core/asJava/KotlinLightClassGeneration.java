@@ -45,7 +45,7 @@ public class KotlinLightClassGeneration {
         
         GenerationState state = new GenerationState(
                 project, 
-                new LightClassBuilderFactory(), 
+                new LightClassBuilderFactory(javaProject), 
                 analysisResult.getModuleDescriptor(),
                 analysisResult.getBindingContext(), 
                 jetFiles);

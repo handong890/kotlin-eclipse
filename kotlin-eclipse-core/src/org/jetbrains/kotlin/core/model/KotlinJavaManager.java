@@ -28,8 +28,13 @@ public class KotlinJavaManager {
     
     @Nullable
     public IType findEclipseType(@NotNull JetClass jetClass, @NotNull IJavaProject javaProject) {
+        FqName fqName = jetClass.getFqName();
+        return fqName != null ? findEclipseType(fqName, javaProject) : null;
+    }
+
+    @Nullable
+    public IType findEclipseType(@NotNull FqName fqName, @NotNull IJavaProject javaProject) {
         try {
-            FqName fqName = jetClass.getFqName();
             if (fqName != null) {
                 return javaProject.findType(fqName.asString());
             }

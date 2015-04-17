@@ -24,7 +24,7 @@ public class KotlinCompilationUnitProvider implements ICompilationUnitProvider {
 
     @Override
     public CompilationUnit create(PackageFragment parent, String name, WorkingCopyOwner owner) {
-        JetFile jetFile = KotlinPsiManager.getKotlinFileIfExist("C:/Users/Mikhail.Zarechenskiy/runtime-EclipseApplicationwithEquinoxWeaving/Ttemp/src/testing/debug/view/Some.kt");
+        JetFile jetFile = KotlinPsiManager.getKotlinFileIfExist("C:/Users/Mikhail.Zarechenskiy/runtime-EclipseApplicationwithEquinoxWeaving/Ttemp/src/DefKotlin.kt");
         if (jetFile != null) {
             if (!jetFile.getDeclarations().isEmpty()) {
                 JetClass jetClass = (JetClass) jetFile.getDeclarations().get(0);
@@ -35,7 +35,7 @@ public class KotlinCompilationUnitProvider implements ICompilationUnitProvider {
                     if (eclipseType != null) {
                         ICompilationUnit compilationUnit;
                         try {
-                            compilationUnit = eclipseType.getWorkingCopy(null, null);
+                            compilationUnit = eclipseType.getWorkingCopy(owner, null);
                             compilationUnit.getAllTypes();
                             compilationUnit.getParent();
                         } catch (JavaModelException e) {

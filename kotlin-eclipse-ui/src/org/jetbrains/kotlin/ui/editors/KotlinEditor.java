@@ -40,6 +40,7 @@ public class KotlinEditor extends CompilationUnitEditor {
     
     public KotlinEditor() {
         super();
+        setDocumentProvider(new KotlinDocumentProvider());
         colorManager = new JavaColorManager();
         bracketInserter = new BracketInserter();
     }

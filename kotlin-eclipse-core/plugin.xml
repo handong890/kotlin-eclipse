@@ -30,4 +30,11 @@
             id="org.jetbrains.kotlin.core.KOTLIN_CONTAINER">
       </classpathContainerInitializer>
    </extension>
+   <extension
+         point="org.eclipse.contribution.weaving.jdt.cuprovider">
+      <provider
+            class="org.jetbrains.kotlin.core.asJava.KotlinCompilationUnitProvider"
+            file_extension="kt">
+      </provider>
+   </extension>
 </plugin>

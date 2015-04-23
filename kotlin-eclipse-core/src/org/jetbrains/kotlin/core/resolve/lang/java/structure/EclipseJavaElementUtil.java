@@ -20,6 +20,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.jdt.core.Flags;
+import org.eclipse.jdt.core.IClassFile;
+import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.core.IJavaProject;
 import org.eclipse.jdt.core.IMethod;
 import org.eclipse.jdt.core.IType;
@@ -32,6 +34,7 @@ import org.eclipse.jdt.core.dom.Modifier;
 import org.eclipse.jdt.internal.compiler.env.IBinaryType;
 import org.eclipse.jdt.internal.core.BinaryType;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.core.builder.KotlinPsiManager;
 import org.jetbrains.kotlin.core.log.KotlinLogger;
 import org.jetbrains.kotlin.core.resolve.lang.java.EclipseJavaClassFinder;
@@ -152,6 +155,21 @@ public class EclipseJavaElementUtil {
             if (fqName.asString().equals(annotationFQName)) {
                 return new EclipseJavaAnnotation(annotation);
             }
+        }
+        
+        return null;
+    }
+    
+    public static boolean isKotlinElement(@NotNull IJavaElement javaElement) {
+        BinaryType binaryType = getKotlinBinaryType(javaElement);
+        return binaryType != null ? isKotlinLightClass(binaryType) : false;
+    }
+    
+    @Nullable
+    public static BinaryType getKotlinBinaryType(@NotNull IJavaElement javaElement) {
+        IClassFile classFile = (IClassFile) javaElement.getAncestor(IJavaElement.CLASS_FILE);
+        if (classFile != null) {
+            return (BinaryType) classFile.getType();
         }
         
         return null;

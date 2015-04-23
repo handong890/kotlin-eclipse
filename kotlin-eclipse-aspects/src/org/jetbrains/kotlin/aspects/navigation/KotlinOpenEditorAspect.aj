@@ -1,10 +1,9 @@
 package org.jetbrains.kotlin.aspects.navigation;
 
-import org.eclipse.ui.IEditorPart;
-import org.eclipse.jdt.core.IClassFile;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.jdt.internal.core.BinaryType;
+import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
+import org.eclipse.ui.IEditorPart;
 import org.jetbrains.kotlin.core.resolve.lang.java.structure.EclipseJavaElementUtil;
 import org.jetbrains.kotlin.ui.navigation.KotlinOpenEditor;
 
@@ -17,13 +16,11 @@ public aspect KotlinOpenEditorAspect {
 	IEditorPart around(Object inputElement, boolean activate) : openInEditor(inputElement, activate) {
 		if (inputElement instanceof IJavaElement) {
 			IJavaElement javaElement = (IJavaElement) inputElement;
-			IClassFile classFile = (IClassFile) javaElement.getAncestor(IJavaElement.CLASS_FILE);
-			if (classFile != null) {
-				BinaryType binaryType = (BinaryType) classFile.getType();
-				if (EclipseJavaElementUtil.isKotlinLightClass((BinaryType) binaryType)) {
-					return KotlinOpenEditor.openKotlinEditor(binaryType, activate);
-				}	
-			}
+			
+			BinaryType binaryType = EclipseJavaElementUtil.getKotlinBinaryType(javaElement);
+			if (binaryType != null && EclipseJavaElementUtil.isKotlinLightClass(binaryType)) {
+				return KotlinOpenEditor.openKotlinEditor(binaryType, activate);
+			}	
 		}
 		
 		return proceed(inputElement, activate);

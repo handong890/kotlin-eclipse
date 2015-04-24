@@ -18,11 +18,12 @@ import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.core.builder.KotlinPsiManager;
 import org.jetbrains.kotlin.core.log.KotlinLogger;
 import org.jetbrains.kotlin.eclipse.ui.utils.EditorUtil;
+import org.jetbrains.kotlin.eclipse.ui.utils.LineEndUtil;
 import org.jetbrains.kotlin.psi.JetElement;
 import org.jetbrains.kotlin.psi.JetFile;
 import org.jetbrains.kotlin.ui.editors.KotlinEditor;
 
-// Seeks for Kotlin editor by IJavaElement
+// Seeks Kotlin editor by IJavaElement
 public class KotlinOpenEditor {
 	@Nullable
 	public static IEditorPart openKotlinEditor(@NotNull BinaryType binaryType, boolean activate) {
@@ -43,16 +44,17 @@ public class KotlinOpenEditor {
 	public static void revealKotlinElement(@NotNull KotlinEditor kotlinEditor, @NotNull IJavaElement javaElement) {
 	    IFile file = EditorUtil.getFile(kotlinEditor);
 	    if (file != null) {
-	        JetElement jetElement = findKotlinElement(javaElement, file);
+	        JetFile jetFile = KotlinPsiManager.INSTANCE.getParsedFile(file);
+	        JetElement jetElement = findKotlinElement(javaElement, jetFile);
 	        if (jetElement != null) {
-	            kotlinEditor.selectAndReveal(jetElement.getTextOffset(), 0);
+	            int offset = LineEndUtil.convertLfToDocumentOffset(jetFile.getText(), jetElement.getTextOffset(), EditorUtil.getDocument(file));
+	            kotlinEditor.selectAndReveal(offset, 0);
 	        }
 	    }
 	}
 
 	@Nullable
-	private static JetElement findKotlinElement(@NotNull final IJavaElement javaElement, @NotNull IFile file) {
-	    JetFile jetFile = KotlinPsiManager.INSTANCE.getParsedFile(file);
+	private static JetElement findKotlinElement(@NotNull final IJavaElement javaElement, @NotNull JetFile jetFile) {
 	    List<JetElement> result = NavigationPackage.visitFile(javaElement, jetFile);
 	    if (result.size() == 1) {
 	        return result.get(0);

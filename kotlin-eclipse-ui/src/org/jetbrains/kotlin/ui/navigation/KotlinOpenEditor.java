@@ -1,5 +1,6 @@
 package org.jetbrains.kotlin.ui.navigation;
 
+import java.io.File;
 import java.util.List;
 
 import org.eclipse.core.resources.IFile;
@@ -7,15 +8,13 @@ import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaElement;
-import org.eclipse.jdt.core.JavaModelException;
-import org.eclipse.jdt.internal.compiler.env.IBinaryType;
-import org.eclipse.jdt.internal.core.BinaryType;
 import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PartInitException;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.core.builder.KotlinPsiManager;
+import org.jetbrains.kotlin.core.filesystem.KotlinLightClassManager;
 import org.jetbrains.kotlin.core.log.KotlinLogger;
 import org.jetbrains.kotlin.eclipse.ui.utils.EditorUtil;
 import org.jetbrains.kotlin.eclipse.ui.utils.LineEndUtil;
@@ -26,15 +25,29 @@ import org.jetbrains.kotlin.ui.editors.KotlinEditor;
 // Seeks Kotlin editor by IJavaElement
 public class KotlinOpenEditor {
 	@Nullable
-	public static IEditorPart openKotlinEditor(@NotNull BinaryType binaryType, boolean activate) {
+	public static IEditorPart openKotlinEditor(@NotNull IJavaElement element, boolean activate) {
 		try {
-			IBinaryType rawBinaryType = (IBinaryType) ((binaryType).getElementInfo());
-			IPath sourceFilePath = new Path(binaryType.getSourceFileName(rawBinaryType));
+			File lightClass = element.getResource().getFullPath().toFile();
+			List<JetFile> sourceFiles = KotlinLightClassManager.INSTANCE.getSourceFiles(lightClass);
+			JetFile referenceFile = null;
+			for (JetFile sourceFile : sourceFiles) {
+			    JetElement referenceElement = findKotlinElement(element, sourceFile);
+			    if (referenceElement != null) {
+			        referenceFile = sourceFile;
+			        break;
+			    }
+			}
+			
+			if (referenceFile == null) {
+			    return null;
+			}
+			
+			IPath sourceFilePath = new Path(referenceFile.getVirtualFile().getPath());
 	        IFile kotlinFile = ResourcesPlugin.getWorkspace().getRoot().getFileForLocation(sourceFilePath);
 	        if (kotlinFile.exists()) {
 	        	return EditorUtility.openInEditor(kotlinFile, activate);
 	        }
-		} catch (JavaModelException | PartInitException e) {
+		} catch (PartInitException e) {
 			KotlinLogger.logAndThrow(e);
 		}
 		

@@ -17,9 +17,8 @@ public aspect KotlinOpenEditorAspect {
 		if (inputElement instanceof IJavaElement) {
 			IJavaElement javaElement = (IJavaElement) inputElement;
 			
-			BinaryType binaryType = EclipseJavaElementUtil.getKotlinBinaryType(javaElement);
-			if (binaryType != null && EclipseJavaElementUtil.isKotlinLightClass(binaryType)) {
-				return KotlinOpenEditor.openKotlinEditor(binaryType, activate);
+			if (EclipseJavaElementUtil.isKotlinLightClass(javaElement)) {
+				return KotlinOpenEditor.openKotlinEditor(javaElement, activate);
 			}	
 		}
 		

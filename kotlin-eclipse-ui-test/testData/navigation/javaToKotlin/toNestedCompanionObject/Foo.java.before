@@ -1,0 +1,11 @@
+package org.jet;
+
+import org.jet.kot.SomeKotlin;
+import org.jet.kot.NestedInSome;
+
+public class SomeJava {
+	public void callKotlin() {
+		NestedInSome nested = new SomeKotlin().getNested();
+		NestedInSome.Com<caret>panion.staticInNested();
+	}
+}

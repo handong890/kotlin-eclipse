@@ -67,4 +67,19 @@ public class JavaToKotlinNavigation extends JavaToKotlinNavigationTestCase {
 	public void toFunctionWithNameDuplicateInClass() {
 		doAutoTest();
 	}
+	
+	@Test
+	public void specifiedPackageLevelFunction() {
+		doAutoTest();
+	}
+	
+	@Test
+	public void toFunInBaseClass() {
+		doAutoTest();
+	}
+	
+	@Test
+	public void toNestedCompanionObject() {
+		doAutoTest();
+	}
 }

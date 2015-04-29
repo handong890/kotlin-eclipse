@@ -1,4 +1,4 @@
-import pckg.navigation.NavigationPackage;
+import pckg.navigation.SomeKotlin;
 
 public class Foo {
 	public void some() {

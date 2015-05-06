@@ -34,7 +34,7 @@ import com.intellij.util.containers.ContainerUtil;
 
 public abstract class KotlinNavigationTestCase extends KotlinEditorAutoTestCase {
     
-    public static class NavigationSourceFileData extends SourceFileData {
+    private static class NavigationSourceFileData extends SourceFileData {
         
         public static final Condition<NavigationSourceFileData> IS_BEFORE_PREDICATE = new Condition<NavigationSourceFileData>() {
             @Override

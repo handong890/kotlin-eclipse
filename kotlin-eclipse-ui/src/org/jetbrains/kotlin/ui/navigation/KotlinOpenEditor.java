@@ -9,8 +9,13 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.Path;
 import org.eclipse.jdt.core.IJavaElement;
 import org.eclipse.jdt.internal.ui.javaeditor.EditorUtility;
+import org.eclipse.jface.viewers.ArrayContentProvider;
+import org.eclipse.jface.viewers.LabelProvider;
+import org.eclipse.jface.window.Window;
 import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.PartInitException;
+import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.dialogs.ListDialog;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.core.builder.KotlinPsiManager;
@@ -18,6 +23,7 @@ import org.jetbrains.kotlin.core.filesystem.KotlinLightClassManager;
 import org.jetbrains.kotlin.core.log.KotlinLogger;
 import org.jetbrains.kotlin.eclipse.ui.utils.EditorUtil;
 import org.jetbrains.kotlin.eclipse.ui.utils.LineEndUtil;
+import org.jetbrains.kotlin.psi.JetDeclaration;
 import org.jetbrains.kotlin.psi.JetElement;
 import org.jetbrains.kotlin.psi.JetFile;
 import org.jetbrains.kotlin.ui.editors.KotlinEditor;
@@ -72,6 +78,30 @@ public class KotlinOpenEditor {
 	    List<JetElement> result = NavigationPackage.findKotlinDeclarations(javaElement, jetFile);
 	    if (result.size() == 1) {
 	        return result.get(0);
+	    } else if (result.size() > 1) {
+	        ListDialog dialog = new ListDialog(PlatformUI.getWorkbench().getActiveWorkbenchWindow().getShell());
+	        dialog.setBlockOnOpen(true);
+	        dialog.setMessage("Select a Kotlin element to navigate");
+	        dialog.setTitle("Choose Kotlin element");
+	        dialog.setContentProvider(new ArrayContentProvider());
+	        dialog.setLabelProvider(new LabelProvider() {
+                @Override
+                public String getText(Object element) {
+                    if (element instanceof JetDeclaration) {
+                        return element.toString();
+                    } 
+                    return super.getText(element);
+                }
+	        });
+	        
+	        dialog.setInput(result);
+	        
+	        if (dialog.open() == Window.CANCEL) {
+	            return null;
+	        }
+	        
+	        Object[] results = dialog.getResult();
+	        return results != null ? (JetElement) results[0] : null;
 	    }
 	    
 	    return null;

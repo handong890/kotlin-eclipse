@@ -1,6 +1,7 @@
 package org.jetbrains.kotlin.core.filesystem;
 
 import java.io.File;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -22,16 +23,26 @@ import org.eclipse.jdt.core.IJavaProject;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.jetbrains.kotlin.backend.common.output.OutputFile;
+import org.jetbrains.kotlin.codegen.ClassBuilderMode;
 import org.jetbrains.kotlin.codegen.state.GenerationState;
+import org.jetbrains.kotlin.codegen.state.JetTypeMapper;
 import org.jetbrains.kotlin.core.asJava.LightClassFile;
 import org.jetbrains.kotlin.core.builder.KotlinPsiManager;
 import org.jetbrains.kotlin.core.log.KotlinLogger;
 import org.jetbrains.kotlin.core.model.KotlinJavaManager;
 import org.jetbrains.kotlin.core.utils.ProjectUtils;
+import org.jetbrains.kotlin.descriptors.ClassDescriptor;
+import org.jetbrains.kotlin.name.ClassId;
+import org.jetbrains.kotlin.name.FqName;
+import org.jetbrains.kotlin.psi.JetClassOrObject;
 import org.jetbrains.kotlin.psi.JetFile;
+import org.jetbrains.kotlin.resolve.BindingContext;
+import org.jetbrains.kotlin.resolve.DescriptorUtils;
+import org.jetbrains.org.objectweb.asm.Type;
 
 import com.google.common.base.Predicate;
 import com.google.common.collect.Lists;
+import com.intellij.psi.util.PsiTreeUtil;
 
 public class KotlinLightClassManager {
     public static final KotlinLightClassManager INSTANCE = new KotlinLightClassManager();
@@ -86,6 +97,27 @@ public class KotlinLightClassManager {
         sourceFiles.putAll(newSourceFilesMap);
         
         cleanDeprectedLightClasses(project);
+    }
+    
+    public void updateLightClassesDeclarations(@NotNull IJavaProject javaProject, @NotNull BindingContext context) {
+        JetTypeMapper jetTypeMapper = new JetTypeMapper(context, ClassBuilderMode.LIGHT_CLASSES);
+        for (IFile file : KotlinPsiManager.INSTANCE.getFilesByProject(javaProject.getProject())) {
+            JetFile jetFile = KotlinPsiManager.INSTANCE.getParsedFile(file);
+            Collection<JetClassOrObject> classesOrObjects = PsiTreeUtil.findChildrenOfType(jetFile, JetClassOrObject.class);
+            for (JetClassOrObject classOrObject : classesOrObjects) {
+                FqName fqName = classOrObject.getFqName();
+                if (fqName == null) continue;
+                
+                ClassDescriptor classDescriptor = context.get(BindingContext.FQNAME_TO_CLASS_DESCRIPTOR, fqName.toUnsafe());
+                if (classDescriptor == null) continue;
+                
+                Type asmType = jetTypeMapper.mapClass(classDescriptor);
+//                classDescriptor.isInner()
+                String internalName = asmType.getInternalName();
+                boolean staticNestedClass = DescriptorUtils.isStaticNestedClass(classDescriptor);
+                ClassId classId = ClassId.topLevel(fqName);
+            }
+        }
     }
 
     private void cleanDeprectedLightClasses(IProject project) throws CoreException {

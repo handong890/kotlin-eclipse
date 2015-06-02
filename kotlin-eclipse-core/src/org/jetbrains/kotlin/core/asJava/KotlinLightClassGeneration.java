@@ -37,6 +37,8 @@ public class KotlinLightClassGeneration {
         KotlinLightClassManager.INSTANCE.saveKotlinDeclarationClasses(state, javaProject, affectedFiles);
     }
     
+    
+    
     public static GenerationState buildLightClasses(@NotNull AnalysisResult analysisResult, @NotNull IJavaProject javaProject, 
             @NotNull List<JetFile> jetFiles) {
         Project project = KotlinEnvironment.getEnvironment(javaProject).getProject();

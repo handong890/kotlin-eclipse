@@ -29,7 +29,7 @@ class KotlinTokensFactory(val preferenceStore: IPreferenceStore, val colorManage
 		val elementType = leafElement.getElementType()
 		return when {
 			elementType in JetTokens.KEYWORDS, 
-				elementType in JetTokens.SOFT_KEYWORDS, 
+				elementType in JetTokens.SOFT_KEYWORDS,
 				elementType in JetTokens.MODIFIER_KEYWORDS -> keywordToken
 			
 			JetTokens.IDENTIFIER.equals(elementType) -> identifierToken

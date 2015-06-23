@@ -70,26 +70,24 @@ public class KotlinImplementMethodsProposal : KotlinQuickAssistProposal() {
 		val editor = getActiveEditor()!!
         if (body == null) {
             val psiFactory = JetPsiFactory(classOrObject)
-			classOrObject.add(psiFactory.createWhiteSpace())
-			body = classOrObject.add(psiFactory.createEmptyClassBody()) as JetClassBody
+            val bodyText = "${psiFactory.createWhiteSpace().getText()}${psiFactory.createEmptyClassBody().getText()}"
+            insertAfter(classOrObject, bodyText)
         }
 
-        var afterAnchor = findInsertAfterAnchor(body)
-
-        if (afterAnchor == null) return
-
-        var firstGenerated: PsiElement? = null
-        for (element in generateOverridingMembers(selectedElements, classOrObject)) {
-            val added = body.addAfter(element, afterAnchor)
-
-            if (firstGenerated == null) {
-                firstGenerated = added
-            }
-
-            afterAnchor = added
-        }
-		
-//		insertAfter(classOrObject, document, editor, body.getText())
+//        var afterAnchor = findInsertAfterAnchor(body)
+//
+//        if (afterAnchor == null) return
+//
+//        var firstGenerated: PsiElement? = null
+//        for (element in generateOverridingMembers(selectedElements, classOrObject)) {
+//            val added = body.addAfter(element, afterAnchor)
+//
+//            if (firstGenerated == null) {
+//                firstGenerated = added
+//            }
+//
+//            afterAnchor = added
+//        }
 	}
 	
     private fun generateOverridingMembers(selectedElements: Set<CallableMemberDescriptor>,
@@ -98,8 +96,7 @@ public class KotlinImplementMethodsProposal : KotlinQuickAssistProposal() {
         for (selectedElement in selectedElements) {
             if (selectedElement is SimpleFunctionDescriptor) {
                 overridingMembers.add(overrideFunction(classOrObject, selectedElement))
-            }
-            else if (selectedElement is PropertyDescriptor) {
+            } else if (selectedElement is PropertyDescriptor) {
                 overridingMembers.add(overrideProperty(classOrObject, selectedElement))
             }
         }
